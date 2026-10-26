@@ -8,11 +8,38 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const appName = process.argv[2];
+const pkgMeta = JSON.parse(readFileSync(join(__dirname, "package.json"), "utf8"));
+const CLI_VERSION = pkgMeta.version;
+
+function log(message) {
+  console.log(message);
+}
+
+function error(message) {
+  console.error(message);
+}
 
 function printUsage() {
-  console.log("\nUsage: npx prasanga-init <AppName>\n");
-  console.log("Example:");
-  console.log("  npx prasanga-init MyNewApp\n");
+  log("");
+  log("Usage: npx prasanga-init <project-directory>");
+  log("");
+  log("Options:");
+  log("  -h, --help     Show this help message");
+  log("  -v, --version  Show CLI version");
+  log("");
+  log("Example:");
+  log("  npx prasanga-init MyNewApp");
+  log("");
+}
+
+if (process.argv.includes("-h") || process.argv.includes("--help")) {
+  printUsage();
+  process.exit(0);
+}
+
+if (process.argv.includes("-v") || process.argv.includes("--version")) {
+  log(`prasanga-init v${CLI_VERSION}`);
+  process.exit(0);
 }
 
 if (!appName || appName.startsWith("-")) {
@@ -21,27 +48,36 @@ if (!appName || appName.startsWith("-")) {
 }
 
 if (!/^[a-zA-Z][a-zA-Z0-9-_]*$/.test(appName)) {
-  console.error("\n❌ Invalid app name. Use letters, numbers, hyphens, or underscores.\n");
+  error("");
+  error("Error: Invalid project name.");
+  error("Use letters, numbers, hyphens, or underscores. Must start with a letter.");
+  error("");
   process.exit(1);
 }
 
 const targetDir = resolve(process.cwd(), appName);
-
-if (existsSync(targetDir)) {
-  console.error(`\n❌ Folder "${appName}" already exists.\n`);
-  process.exit(1);
-}
-
 const templateDir = join(__dirname, "template");
 
-if (!existsSync(templateDir)) {
-  console.error("\n❌ Template not found in prasanga-init package.\n");
+if (existsSync(targetDir)) {
+  error("");
+  error(`Error: Directory "${appName}" already exists.`);
+  error("");
   process.exit(1);
 }
 
-console.log(`\n🚀 Creating Prasanga app: ${appName}\n`);
+if (!existsSync(templateDir)) {
+  error("");
+  error("Error: Starter template not found in prasanga-init package.");
+  error("");
+  process.exit(1);
+}
+
+log("");
+log(`Creating a new Prasanga app in ${targetDir}`);
+log("");
 
 try {
+  log("- copying starter files");
   cpSync(templateDir, targetDir, { recursive: true });
 
   const pkgPath = join(targetDir, "package.json");
@@ -55,16 +91,44 @@ try {
   appJson.expo.slug = pkg.name;
   writeFileSync(appJsonPath, `${JSON.stringify(appJson, null, 2)}\n`);
 
-  console.log("📦 Installing dependencies (prasanga-ui + Expo)...\n");
+  log("- updating project metadata");
+  log("");
+  log("Installing dependencies with npm:");
+  log("  prasanga-ui, expo, react, react-native");
+  log("");
+
   execSync("npm install --legacy-peer-deps", { cwd: targetDir, stdio: "inherit" });
 
-  console.log("\n✅ Done! Your Prasanga app is ready.\n");
-  console.log("Next steps:");
-  console.log(`  cd ${appName}`);
-  console.log("  npx expo start\n");
-  console.log("📚 Docs: https://prasangakit.smmv.shop");
-  console.log("📦 UI:   https://www.npmjs.com/package/prasanga-ui\n");
-} catch (error) {
-  console.error("\n❌ Failed to create app:", error.message || error);
+  log("");
+  log("Success! Created project at:");
+  log(`  ${targetDir}`);
+  log("");
+  log("Inside that directory, you can run:");
+  log("");
+  log("  npx expo start");
+  log("    Start the Expo development server.");
+  log("");
+  log("  npm run ios");
+  log("    Run on iOS simulator.");
+  log("");
+  log("  npm run android");
+  log("    Run on Android emulator.");
+  log("");
+  log("We suggest starting with:");
+  log("");
+  log(`  cd ${appName}`);
+  log("  npx expo start");
+  log("");
+  log("Documentation:");
+  log("  https://prasangakit.smmv.shop");
+  log("  https://www.npmjs.com/package/prasanga-ui");
+  log("");
+} catch (err) {
+  error("");
+  error("Error: Failed to create project.");
+  if (err instanceof Error && err.message) {
+    error(err.message);
+  }
+  error("");
   process.exit(1);
 }

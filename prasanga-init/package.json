@@ -1,6 +1,6 @@
 {
   "name": "prasanga-init",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Scaffold a new Expo app with prasanga-ui — 45+ shadcn-inspired React Native components",
   "type": "module",
   "bin": {

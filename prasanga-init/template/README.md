@@ -2,16 +2,24 @@
 
 Created with [prasanga-init](https://www.npmjs.com/package/prasanga-init).
 
-## Run
+## Development
 
 ```bash
-npm install
 npx expo start
 ```
 
-Scan the QR code with Expo Go to preview all **prasanga-ui** components.
+Open the project in Expo Go to preview the included prasanga-ui component showcase.
 
-## Docs
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start Expo dev server |
+| `npm run ios` | Run on iOS simulator |
+| `npm run android` | Run on Android emulator |
+| `npm run web` | Run in the browser |
+
+## Links
 
 - UI library: https://www.npmjs.com/package/prasanga-ui
-- Website: https://prasangakit.smmv.shop
+- Documentation: https://prasangakit.smmv.shop
